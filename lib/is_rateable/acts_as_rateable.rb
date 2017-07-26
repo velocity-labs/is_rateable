@@ -38,7 +38,15 @@ module IsRateable
       # Easily add a new rating to the object by calling Object.add_rating(score: 5, rater: user)
       # Pass in the entire rater object in, rather than the id.
       def add_rating(options = {})
-        Rating.create(score: options[:score], rater: options[:rater], ratee: self)
+        if rating = Rating.find_by(rater: options[:rater], ratee: self)
+          rating.update score: options[:score]
+        else
+          Rating.create(score: options[:score], rater: options[:rater], ratee: self)
+        end
+      end
+
+      def rating_for(rater)
+        Rating.find_by(rater: rater, ratee: self).try(:score)
       end
     end
   end
